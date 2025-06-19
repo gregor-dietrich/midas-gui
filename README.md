@@ -10,12 +10,14 @@ If you want to learn more about Quarkus, please visit its website: <https://quar
 |----------|----------|----------|----------|
 | Maven | ✅ | ❌ | [Apache](https://maven.apache.org/download.cgi) |
 | JDK 21 | ✅ | ✅ | [Adoptium](https://adoptium.net/temurin/releases/?os=any&arch=any&version=21) |
-| Docker | ✅ | ✅ | (see below) |
+| Docker | (✅) | (✅) | (see below) |
 
 For Docker, you have 2 options:
 
 - [Docker Engine](https://docs.docker.com/engine/install/)
 - or [Docker Desktop](https://docs.docker.com/desktop/) (includes Docker Engine)
+
+Docker is only required for builds if you wish to run tests. For running the application, Docker isn't technically required either, but highly recommended.
 
 ## 🔧 Preparation
 
