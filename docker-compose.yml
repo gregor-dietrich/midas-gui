@@ -1,0 +1,11 @@
+services:
+  midas-gui:
+    image: midas-gui:1.0.0-SNAPSHOT
+    build:
+      context: .
+      dockerfile: src/main/docker/Dockerfile.jvm
+    environment:
+      QUARKUS_REST_CLIENT_MIDAS_API_URL: "http://host.docker.internal:8080/api/v1"
+    restart: unless-stopped
+    ports:
+      - "80:9001"
