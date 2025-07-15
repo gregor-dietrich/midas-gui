@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
 
+import de.vptr.midas.gui.result.AuthResult;
+
 class AuthResultTest {
 
     @Test

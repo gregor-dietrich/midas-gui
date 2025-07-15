@@ -20,6 +20,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.vaadin.flow.server.VaadinSession;
 
 import de.vptr.midas.gui.client.AuthClient;
+import de.vptr.midas.gui.result.AuthResult;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;

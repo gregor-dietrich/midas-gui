@@ -1,4 +1,4 @@
-package de.vptr.midas.gui.service;
+package de.vptr.midas.gui.result;
 
 public class AuthResult {
 
