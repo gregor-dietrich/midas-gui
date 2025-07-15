@@ -29,12 +29,11 @@ public class UserPaymentService {
     @Inject
     AuthService authService;
 
-    public List<UserPayment> getAllPayments() {
-        LOG.debug("Fetching all payments");
+    public List<UserPayment> getAllPayments(final String authHeader) throws ServiceException, AuthenticationException {
+        LOG.debug("Fetching all payments with provided auth header");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
             if (authHeader == null) {
-                LOG.warn("No authentication header available");
+                LOG.warn("No authentication header provided");
                 return Collections.emptyList();
             }
 
@@ -45,7 +44,6 @@ public class UserPaymentService {
         } catch (final WebApplicationException e) {
             LOG.error("HTTP error while fetching payments: {}", e.getResponse().getStatus());
             if (e.getResponse().getStatus() == 401) {
-                this.authService.logout();
                 throw new AuthenticationException("Session expired");
             }
             throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);

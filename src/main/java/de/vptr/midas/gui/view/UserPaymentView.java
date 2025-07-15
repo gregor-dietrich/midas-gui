@@ -2,6 +2,8 @@ package de.vptr.midas.gui.view;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +29,8 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
-import de.vptr.midas.gui.dto.User;
 import de.vptr.midas.gui.dto.UserPayment;
+import de.vptr.midas.gui.service.AuthService;
 import de.vptr.midas.gui.service.UserPaymentService;
 import de.vptr.midas.gui.service.UserPaymentService.AuthenticationException;
 import de.vptr.midas.gui.service.UserPaymentService.ServiceException;
@@ -42,6 +44,9 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
 
     @Inject
     UserPaymentService paymentService;
+
+    @Inject
+    AuthService authService;
 
     private Grid<UserPayment> grid;
     private Button refreshButton;
@@ -64,8 +69,41 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
 
     @Override
     public void beforeEnter(final BeforeEnterEvent event) {
+        LOG.info("UserPaymentView.beforeEnter - Starting view initialization");
         this.buildUI();
-        this.loadPayments();
+        this.loadPaymentsAsync();
+        LOG.info("UserPaymentView.beforeEnter - View initialization completed");
+    }
+
+    private void loadPaymentsAsync() {
+        LOG.info("Starting async payment loading");
+
+        // Clear grid and show it's loading
+        this.grid.setItems();
+
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                LOG.info("Making REST call to load payments");
+                // Use captured auth header instead of calling authService from background
+                // thread
+                return this.paymentService.getAllPayments(this.authService.getBasicAuthHeader());
+            } catch (final Exception e) {
+                LOG.error("Error loading payments", e);
+                return List.<UserPayment>of();
+            }
+        }).orTimeout(5, TimeUnit.SECONDS)
+                .whenComplete((payments, throwable) -> {
+                    this.getUI().ifPresent(ui -> ui.access(() -> {
+                        if (throwable != null) {
+                            LOG.error("Failed to load payments: {}", throwable.getMessage());
+                            NotificationUtil.showError("Failed to load payments: " + throwable.getMessage());
+                            this.grid.setItems();
+                        } else {
+                            LOG.info("Successfully loaded {} payments", payments.size());
+                            this.grid.setItems(payments);
+                        }
+                    }));
+                });
     }
 
     private void buildUI() {
@@ -192,26 +230,11 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
         // Form fields
-        final var userField = new NumberField("User ID");
         final var sourceAccountField = new NumberField("Source Account ID");
         final var targetAccountField = new NumberField("Target Account ID");
         final var amountField = new BigDecimalField("Amount");
         final var dateField = new DatePicker("Payment Date");
         final var commentField = new TextField("Comment");
-
-        // Bind fields
-        this.binder.forField(userField).bind(
-                payment1 -> payment1.user != null ? payment1.user.getId().doubleValue() : null,
-                (payment1, value) -> {
-                    if (value != null) {
-                        if (payment1.user == null) {
-                            payment1.user = new User();
-                        }
-                        payment1.user.setId(value.longValue());
-                    } else {
-                        payment1.user = null;
-                    }
-                });
 
         this.binder.forField(sourceAccountField).bind(
                 payment1 -> payment1.sourceId != null ? payment1.sourceId.doubleValue() : null,
@@ -225,7 +248,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         this.binder.bind(dateField, payment1 -> payment1.date, (payment1, value) -> payment1.date = value);
         this.binder.bind(commentField, payment1 -> payment1.comment, (payment1, value) -> payment1.comment = value);
 
-        form.add(userField, sourceAccountField, targetAccountField, amountField, dateField, commentField);
+        form.add(sourceAccountField, targetAccountField, amountField, dateField, commentField);
 
         // Button layout
         final var buttonLayout = new HorizontalLayout();
@@ -300,7 +323,8 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
 
     private void loadPayments() {
         try {
-            final List<UserPayment> payments = this.paymentService.getAllPayments();
+            final List<UserPayment> payments = this.paymentService
+                    .getAllPayments(this.authService.getBasicAuthHeader());
             this.grid.setItems(payments);
         } catch (final AuthenticationException e) {
             NotificationUtil.showError("Session expired. Please log in again.");
