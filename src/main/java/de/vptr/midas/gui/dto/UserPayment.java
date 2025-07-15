@@ -32,11 +32,11 @@ public class UserPayment {
     public String comment;
 
     @JsonProperty("created")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime created;
 
     @JsonProperty("lastEdit")
-    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime lastEdit;
 
     public UserPayment() {
@@ -59,7 +59,7 @@ public class UserPayment {
         return this.id;
     }
 
-    public User getUserId() {
+    public User getUser() {
         return this.user;
     }
 
@@ -95,7 +95,7 @@ public class UserPayment {
         this.id = id;
     }
 
-    public void setUserId(final User user) {
+    public void setUser(final User user) {
         this.user = user;
     }
 
