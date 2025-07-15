@@ -63,6 +63,9 @@ class AuthServiceTest {
 
         // Then
         assertThat(result.getStatus()).isEqualTo(AuthResult.Status.SUCCESS);
+        verify(this.vaadinSession).setAttribute("authenticated.username", username);
+        verify(this.vaadinSession).setAttribute("authenticated.password", password);
+        verify(this.vaadinSession).setAttribute("authenticated.status", true);
     }
 
     @Test
@@ -87,6 +90,15 @@ class AuthServiceTest {
     void authenticate_shouldReturnInvalidInput_whenUsernameIsNull() {
         // When
         final AuthResult result = this.authService.authenticate(null, "password");
+
+        // Then
+        assertThat(result.getStatus()).isEqualTo(AuthResult.Status.INVALID_INPUT);
+    }
+
+    @Test
+    void authenticate_shouldReturnInvalidInput_whenPasswordIsNull() {
+        // When
+        final AuthResult result = this.authService.authenticate("username", null);
 
         // Then
         assertThat(result.getStatus()).isEqualTo(AuthResult.Status.INVALID_INPUT);
@@ -158,8 +170,10 @@ class AuthServiceTest {
         // When
         this.authService.logout();
 
-        // Then - No exception should be thrown
-        assertThat(true).isTrue(); // Test passes if no exception
+        // Then - Verify that session attributes are cleared
+        verify(this.vaadinSession).setAttribute("authenticated.username", null);
+        verify(this.vaadinSession).setAttribute("authenticated.password", null);
+        verify(this.vaadinSession).setAttribute("authenticated.status", false);
     }
 
     @Test
@@ -187,9 +201,49 @@ class AuthServiceTest {
     }
 
     @Test
+    void isAuthenticated_shouldReturnFalse_whenSessionHasAuthenticatedStatusFalse() {
+        // Given
+        when(this.vaadinSession.getAttribute("authenticated.status")).thenReturn(false);
+
+        // When
+        final boolean result = this.authService.isAuthenticated();
+
+        // Then
+        assertThat(result).isFalse();
+    }
+
+    @Test
     void getBasicAuthHeader_shouldReturnNull_whenNotAuthenticated() {
         // Given
         when(this.vaadinSession.getAttribute("authenticated.status")).thenReturn(false);
+
+        // When
+        final String result = this.authService.getBasicAuthHeader();
+
+        // Then
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void getBasicAuthHeader_shouldReturnNull_whenUsernameIsNull() {
+        // Given
+        when(this.vaadinSession.getAttribute("authenticated.status")).thenReturn(true);
+        when(this.vaadinSession.getAttribute("authenticated.username")).thenReturn(null);
+        when(this.vaadinSession.getAttribute("authenticated.password")).thenReturn("password");
+
+        // When
+        final String result = this.authService.getBasicAuthHeader();
+
+        // Then
+        assertThat(result).isNull();
+    }
+
+    @Test
+    void getBasicAuthHeader_shouldReturnNull_whenPasswordIsNull() {
+        // Given
+        when(this.vaadinSession.getAttribute("authenticated.status")).thenReturn(true);
+        when(this.vaadinSession.getAttribute("authenticated.username")).thenReturn("testuser");
+        when(this.vaadinSession.getAttribute("authenticated.password")).thenReturn(null);
 
         // When
         final String result = this.authService.getBasicAuthHeader();

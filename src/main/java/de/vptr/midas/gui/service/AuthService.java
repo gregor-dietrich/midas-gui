@@ -92,8 +92,15 @@ public class AuthService {
             LOG.warn("Attempting to get auth header but user is not authenticated");
             return null;
         }
+
         final var username = this.getUsername();
         final var password = (String) VaadinSession.getCurrent().getAttribute(PASSWORD_KEY);
+
+        if (username == null || password == null) {
+            LOG.warn("Username or password is null, cannot create auth header");
+            return null;
+        }
+
         final var credentials = username + ":" + password;
         return "Basic " + Base64.getEncoder().encodeToString(credentials.getBytes());
     }
