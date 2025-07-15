@@ -8,8 +8,6 @@ import com.vaadin.flow.component.Key;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.html.H1;
-import com.vaadin.flow.component.notification.Notification;
-import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
@@ -17,6 +15,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 import de.vptr.midas.gui.service.AuthService;
+import de.vptr.midas.gui.util.NotificationUtil;
 import jakarta.inject.Inject;
 
 @Route(value = "login", layout = MainLayout.class)
@@ -68,7 +67,7 @@ public class LoginView extends VerticalLayout {
 
                     case INVALID_CREDENTIALS:
                         LOG.trace("Invalid credentials, showing error message");
-                        this.showError(result.getMessage());
+                        NotificationUtil.showError(result.getMessage());
                         passwordField.clear();
                         passwordField.focus();
                         break;
@@ -80,18 +79,18 @@ public class LoginView extends VerticalLayout {
 
                     case INVALID_INPUT:
                         LOG.trace("Invalid input, showing warning");
-                        this.showWarning(result.getMessage());
+                        NotificationUtil.showWarning(result.getMessage());
                         break;
 
                     default:
                         LOG.error("Unknown authentication result status: {}", result.getStatus());
-                        this.showError("Unknown error occurred");
+                        NotificationUtil.showError("Unknown error occurred");
                         break;
                 }
 
             } catch (final Exception ex) {
                 LOG.error("Exception during authentication", ex);
-                this.showError("Unexpected error: " + ex.getMessage());
+                NotificationUtil.showError("Unexpected error: " + ex.getMessage());
             } finally {
                 // Re-enable button
                 loginButton.setEnabled(true);
@@ -106,25 +105,5 @@ public class LoginView extends VerticalLayout {
         this.add(title, usernameField, passwordField, loginButton);
 
         usernameField.focus();
-    }
-
-    private void showError(final String message) {
-        LOG.trace("Showing error message: {}", message);
-        final var notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_ERROR);
-        notification.setText(message);
-        notification.setDuration(4000);
-        notification.setPosition(Notification.Position.TOP_CENTER);
-        notification.open();
-    }
-
-    private void showWarning(final String message) {
-        LOG.trace("Showing warning message: {}", message);
-        final var notification = new Notification();
-        notification.addThemeVariants(NotificationVariant.LUMO_CONTRAST);
-        notification.setText(message);
-        notification.setDuration(3000);
-        notification.setPosition(Notification.Position.TOP_CENTER);
-        notification.open();
     }
 }
