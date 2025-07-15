@@ -143,12 +143,12 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     }
 
     private void createTopBar() {
-        final var themeToggle = new ThemeToggleButton(this.themeService);
-
         this.topBar = new HorizontalLayout();
         this.topBar.setWidthFull();
         this.topBar.setJustifyContentMode(JustifyContentMode.END);
         this.topBar.setPadding(true);
+
+        final var themeToggle = new ThemeToggleButton(this.themeService);
         this.topBar.add(themeToggle);
 
         this.addComponentAsFirst(this.topBar);
