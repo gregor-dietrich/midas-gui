@@ -73,26 +73,39 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
     private void loadAccountsAsync() {
         LOG.info("Starting async account loading");
 
-        // Clear grid and show it's loading
-        this.grid.setItems();
+        // Capture the auth header in the UI thread where VaadinSession is available
+        final String authHeader;
+        try {
+            authHeader = this.authService.getBasicAuthHeader();
+        } catch (final Exception e) {
+            LOG.error("Failed to get auth header", e);
+            this.getUI().ifPresent(ui -> ui.access(() -> {
+                NotificationUtil.showError("Authentication failed");
+            }));
+            return;
+        }
 
         CompletableFuture.supplyAsync(() -> {
+            LOG.info("Making REST call to load accounts");
             try {
-                LOG.info("Making REST call to load accounts");
-                // Use captured auth header instead of calling authService from background
-                // thread
-                return this.accountService.getAllAccounts(this.authService.getBasicAuthHeader());
+                return this.accountService.getAllAccounts(authHeader);
+            } catch (final AuthenticationException e) {
+                LOG.error("Authentication failed while loading accounts", e);
+                throw e;
+            } catch (final ServiceException e) {
+                LOG.error("Service error while loading accounts", e);
+                throw e;
             } catch (final Exception e) {
                 LOG.error("Error loading accounts", e);
-                return List.<UserAccount>of();
+                throw new RuntimeException("Failed to load accounts", e);
             }
-        }).orTimeout(5, TimeUnit.SECONDS)
+        }).orTimeout(30, TimeUnit.SECONDS)
                 .whenComplete((accounts, throwable) -> {
                     this.getUI().ifPresent(ui -> ui.access(() -> {
                         if (throwable != null) {
-                            LOG.error("Failed to load accounts: {}", throwable.getMessage());
+                            LOG.error("Error loading accounts: {}", throwable.getMessage(), throwable);
                             NotificationUtil.showError("Failed to load accounts: " + throwable.getMessage());
-                            this.grid.setItems();
+                            LOG.info("Successfully loaded 0 accounts");
                         } else {
                             LOG.info("Successfully loaded {} accounts", accounts.size());
                             this.grid.setItems(accounts);

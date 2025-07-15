@@ -78,26 +78,39 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
     private void loadPaymentsAsync() {
         LOG.info("Starting async payment loading");
 
-        // Clear grid and show it's loading
-        this.grid.setItems();
+        // Capture the auth header in the UI thread where VaadinSession is available
+        final String authHeader;
+        try {
+            authHeader = this.authService.getBasicAuthHeader();
+        } catch (final Exception e) {
+            LOG.error("Failed to get auth header", e);
+            this.getUI().ifPresent(ui -> ui.access(() -> {
+                NotificationUtil.showError("Authentication failed");
+            }));
+            return;
+        }
 
         CompletableFuture.supplyAsync(() -> {
+            LOG.info("Making REST call to load payments");
             try {
-                LOG.info("Making REST call to load payments");
-                // Use captured auth header instead of calling authService from background
-                // thread
-                return this.paymentService.getAllPayments(this.authService.getBasicAuthHeader());
+                return this.paymentService.getAllPayments(authHeader);
+            } catch (final AuthenticationException e) {
+                LOG.error("Authentication failed while loading payments", e);
+                throw e;
+            } catch (final ServiceException e) {
+                LOG.error("Service error while loading payments", e);
+                throw e;
             } catch (final Exception e) {
                 LOG.error("Error loading payments", e);
-                return List.<UserPayment>of();
+                throw new RuntimeException("Failed to load payments", e);
             }
-        }).orTimeout(5, TimeUnit.SECONDS)
+        }).orTimeout(30, TimeUnit.SECONDS)
                 .whenComplete((payments, throwable) -> {
                     this.getUI().ifPresent(ui -> ui.access(() -> {
                         if (throwable != null) {
-                            LOG.error("Failed to load payments: {}", throwable.getMessage());
+                            LOG.error("Error loading payments: {}", throwable.getMessage(), throwable);
                             NotificationUtil.showError("Failed to load payments: " + throwable.getMessage());
-                            this.grid.setItems();
+                            LOG.info("Successfully loaded 0 payments");
                         } else {
                             LOG.info("Successfully loaded {} payments", payments.size());
                             this.grid.setItems(payments);
