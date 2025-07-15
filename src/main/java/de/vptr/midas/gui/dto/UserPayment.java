@@ -12,8 +12,8 @@ public class UserPayment {
     @JsonProperty("id")
     public Long id;
 
-    @JsonProperty("userId")
-    public Long userId;
+    @JsonProperty("user")
+    public User user;
 
     @JsonProperty("sourceId")
     public Long sourceId;
@@ -43,9 +43,9 @@ public class UserPayment {
         // Default constructor for Jackson
     }
 
-    public UserPayment(final Long userId, final Long sourceId, final Long targetId, final BigDecimal amount,
+    public UserPayment(final User user, final Long sourceId, final Long targetId, final BigDecimal amount,
             final LocalDate date, final String comment, final LocalDateTime created, final LocalDateTime lastEdit) {
-        this.userId = userId;
+        this.user = user;
         this.sourceId = sourceId;
         this.targetId = targetId;
         this.amount = amount;
@@ -59,8 +59,8 @@ public class UserPayment {
         return this.id;
     }
 
-    public Long getUserId() {
-        return this.userId;
+    public User getUserId() {
+        return this.user;
     }
 
     public Long getSourceId() {
@@ -95,8 +95,8 @@ public class UserPayment {
         this.id = id;
     }
 
-    public void setUserId(final Long userId) {
-        this.userId = userId;
+    public void setUserId(final User user) {
+        this.user = user;
     }
 
     public void setSourceId(final Long sourceAccountId) {
@@ -131,7 +131,7 @@ public class UserPayment {
     public String toString() {
         return "UserPayment{" +
                 "id=" + this.id +
-                ", userId=" + this.userId +
+                ", user=" + this.user +
                 ", sourceId=" + this.sourceId +
                 ", targetId=" + this.targetId +
                 ", amount=" + this.amount +

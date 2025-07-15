@@ -27,6 +27,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
+import de.vptr.midas.gui.dto.User;
 import de.vptr.midas.gui.dto.UserPayment;
 import de.vptr.midas.gui.service.UserPaymentService;
 import de.vptr.midas.gui.service.UserPaymentService.AuthenticationException;
@@ -141,7 +142,8 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
 
         // Configure columns using lambda expressions
         this.grid.addColumn(payment -> payment.id).setHeader("ID").setWidth("80px").setFlexGrow(0);
-        this.grid.addColumn(payment -> payment.userId).setHeader("User ID").setWidth("100px").setFlexGrow(0);
+        this.grid.addColumn(payment -> payment.user != null ? payment.user.getUsername() : "").setHeader("User")
+                .setWidth("100px").setFlexGrow(0);
         this.grid.addColumn(payment -> payment.sourceId).setHeader("Source Account").setWidth("120px")
                 .setFlexGrow(0);
         this.grid.addColumn(payment -> payment.targetId).setHeader("Target Account").setWidth("120px")
@@ -190,7 +192,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         form.setResponsiveSteps(new FormLayout.ResponsiveStep("0", 1));
 
         // Form fields
-        final var userIdField = new NumberField("User ID");
+        final var userField = new NumberField("User ID");
         final var sourceAccountField = new NumberField("Source Account ID");
         final var targetAccountField = new NumberField("Target Account ID");
         final var amountField = new BigDecimalField("Amount");
@@ -198,9 +200,18 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         final var commentField = new TextField("Comment");
 
         // Bind fields
-        this.binder.forField(userIdField).bind(
-                payment1 -> payment1.userId != null ? payment1.userId.doubleValue() : null,
-                (payment1, value) -> payment1.userId = value != null ? value.longValue() : null);
+        this.binder.forField(userField).bind(
+                payment1 -> payment1.user != null ? payment1.user.getId().doubleValue() : null,
+                (payment1, value) -> {
+                    if (value != null) {
+                        if (payment1.user == null) {
+                            payment1.user = new User();
+                        }
+                        payment1.user.setId(value.longValue());
+                    } else {
+                        payment1.user = null;
+                    }
+                });
 
         this.binder.forField(sourceAccountField).bind(
                 payment1 -> payment1.sourceId != null ? payment1.sourceId.doubleValue() : null,
@@ -211,12 +222,10 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
                 (payment1, value) -> payment1.targetId = value != null ? value.longValue() : null);
 
         this.binder.bind(amountField, payment1 -> payment1.amount, (payment1, value) -> payment1.amount = value);
-        this.binder.bind(dateField, payment1 -> payment1.date,
-                (payment1, value) -> payment1.date = value);
-        this.binder.bind(commentField, payment1 -> payment1.comment,
-                (payment1, value) -> payment1.comment = value);
+        this.binder.bind(dateField, payment1 -> payment1.date, (payment1, value) -> payment1.date = value);
+        this.binder.bind(commentField, payment1 -> payment1.comment, (payment1, value) -> payment1.comment = value);
 
-        form.add(userIdField, sourceAccountField, targetAccountField, amountField, dateField, commentField);
+        form.add(userField, sourceAccountField, targetAccountField, amountField, dateField, commentField);
 
         // Button layout
         final var buttonLayout = new HorizontalLayout();
