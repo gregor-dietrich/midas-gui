@@ -1,10 +1,8 @@
-package de.vptr.midas.gui.service;
+package de.vptr.midas.gui.result;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.jupiter.api.Test;
-
-import de.vptr.midas.gui.result.AuthResult;
 
 class AuthResultTest {
 
