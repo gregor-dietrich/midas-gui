@@ -5,11 +5,12 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
@@ -159,7 +160,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
             this.getUI().ifPresent(ui -> ui.navigate(LoginView.class));
         });
         button.addThemeVariants(ButtonVariant.LUMO_ERROR);
-        button.setIcon(LineAwesomeIcon.SIGN_OUT_ALT_SOLID.create());
+        button.setIcon(new Icon(VaadinIcon.SIGN_OUT));
         button.setTooltipText("Logout");
         return button;
     }

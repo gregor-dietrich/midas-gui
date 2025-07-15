@@ -46,7 +46,6 @@ public class LoginView extends VerticalLayout {
         passwordField.setWidth("300px");
 
         final var loginButton = new Button("Login");
-        loginButton.setIcon(LineAwesomeIcon.SIGN_IN_ALT_SOLID.create());
         loginButton.addClickListener(e -> {
             final var username = usernameField.getValue();
             final var password = passwordField.getValue();
