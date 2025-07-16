@@ -2,7 +2,7 @@ package de.vptr.midas.gui.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserAccount {
+public class UserAccountDto {
 
     @JsonProperty("id")
     public Long id;
@@ -10,11 +10,11 @@ public class UserAccount {
     @JsonProperty("name")
     public String name;
 
-    public UserAccount() {
+    public UserAccountDto() {
         // Default constructor for Jackson
     }
 
-    public UserAccount(final String name) {
+    public UserAccountDto(final String name) {
         this.name = name;
     }
 

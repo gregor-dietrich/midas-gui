@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class User {
+public class UserDto {
 
     @JsonProperty("id")
     public Long id;
@@ -20,7 +20,7 @@ public class User {
     public String salt;
 
     @JsonProperty("rank")
-    public UserRank rank;
+    public UserRankDto rank;
 
     @JsonProperty("email")
     public String email;
@@ -45,11 +45,11 @@ public class User {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime lastLogin;
 
-    public User() {
+    public UserDto() {
         // Default constructor for Jackson
     }
 
-    public User(final String username, final String email) {
+    public UserDto(final String username, final String email) {
         this.username = username;
         this.email = email;
     }
@@ -71,7 +71,7 @@ public class User {
         return this.salt;
     }
 
-    public UserRank getRank() {
+    public UserRankDto getRank() {
         return this.rank;
     }
 
@@ -120,7 +120,7 @@ public class User {
         this.salt = salt;
     }
 
-    public void setRank(final UserRank rank) {
+    public void setRank(final UserRankDto rank) {
         this.rank = rank;
     }
 

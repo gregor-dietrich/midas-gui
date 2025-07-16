@@ -4,7 +4,7 @@ import java.util.List;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import de.vptr.midas.gui.dto.UserAccount;
+import de.vptr.midas.gui.dto.UserAccountDto;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -16,7 +16,7 @@ import jakarta.ws.rs.core.Response;
 public interface UserAccountClient {
 
         @GET
-        List<UserAccount> getAllAccounts(@HeaderParam("Authorization") String authorization);
+        List<UserAccountDto> getAllAccounts(@HeaderParam("Authorization") String authorization);
 
         @GET
         @Path("/{id}")
@@ -28,7 +28,7 @@ public interface UserAccountClient {
 
         @GET
         @Path("/user/{userId}")
-        List<UserAccount> getAccountsByUser(@PathParam("userId") Long userId,
+        List<UserAccountDto> getAccountsByUser(@PathParam("userId") Long userId,
                         @HeaderParam("Authorization") String authorization);
 
         @GET
@@ -45,15 +45,15 @@ public interface UserAccountClient {
 
         @GET
         @Path("/search")
-        List<UserAccount> searchAccounts(@QueryParam("query") String query,
+        List<UserAccountDto> searchAccounts(@QueryParam("query") String query,
                         @HeaderParam("Authorization") String authorization);
 
         @POST
-        Response createAccount(UserAccount account, @HeaderParam("Authorization") String authorization);
+        Response createAccount(UserAccountDto account, @HeaderParam("Authorization") String authorization);
 
         @PUT
         @Path("/{id}")
-        Response updateAccount(@PathParam("id") Long id, UserAccount account,
+        Response updateAccount(@PathParam("id") Long id, UserAccountDto account,
                         @HeaderParam("Authorization") String authorization);
 
         @DELETE

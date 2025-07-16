@@ -7,13 +7,13 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserPayment {
+public class UserPaymentDto {
 
     @JsonProperty("id")
     public Long id;
 
     @JsonProperty("user")
-    public User user;
+    public UserDto user;
 
     @JsonProperty("sourceId")
     public Long sourceId;
@@ -39,11 +39,11 @@ public class UserPayment {
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime lastEdit;
 
-    public UserPayment() {
+    public UserPaymentDto() {
         // Default constructor for Jackson
     }
 
-    public UserPayment(final User user, final Long sourceId, final Long targetId, final BigDecimal amount,
+    public UserPaymentDto(final UserDto user, final Long sourceId, final Long targetId, final BigDecimal amount,
             final LocalDate date, final String comment, final LocalDateTime created, final LocalDateTime lastEdit) {
         this.user = user;
         this.sourceId = sourceId;
@@ -59,7 +59,7 @@ public class UserPayment {
         return this.id;
     }
 
-    public User getUser() {
+    public UserDto getUser() {
         return this.user;
     }
 
@@ -95,7 +95,7 @@ public class UserPayment {
         this.id = id;
     }
 
-    public void setUser(final User user) {
+    public void setUser(final UserDto user) {
         this.user = user;
     }
 

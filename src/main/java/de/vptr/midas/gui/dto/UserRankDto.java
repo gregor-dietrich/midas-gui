@@ -2,7 +2,7 @@ package de.vptr.midas.gui.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserRank {
+public class UserRankDto {
 
     @JsonProperty("id")
     public Long id;
@@ -70,11 +70,11 @@ public class UserRank {
     @JsonProperty("userRankEdit")
     public Boolean userRankEdit = false;
 
-    public UserRank() {
+    public UserRankDto() {
         // Default constructor for Jackson
     }
 
-    public UserRank(final String name) {
+    public UserRankDto(final String name) {
         this.name = name;
     }
 

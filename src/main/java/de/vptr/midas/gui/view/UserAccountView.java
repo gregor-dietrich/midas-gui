@@ -29,7 +29,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
-import de.vptr.midas.gui.dto.UserAccount;
+import de.vptr.midas.gui.dto.UserAccountDto;
 import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
 import de.vptr.midas.gui.service.AuthService;
@@ -48,7 +48,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
     @Inject
     AuthService authService;
 
-    private Grid<UserAccount> grid;
+    private Grid<UserAccountDto> grid;
     private Button refreshButton;
     private Button createButton;
     private TextField searchField;
@@ -57,8 +57,8 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
     private Button filterByUserButton;
 
     private Dialog accountDialog;
-    private Binder<UserAccount> binder;
-    private UserAccount currentAccount;
+    private Binder<UserAccountDto> binder;
+    private UserAccountDto currentAccount;
 
     public UserAccountView() {
         this.setSizeFull();
@@ -184,7 +184,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
     }
 
     private void createGrid() {
-        this.grid = new Grid<>(UserAccount.class, false);
+        this.grid = new Grid<>(UserAccountDto.class, false);
         this.grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         this.grid.setSizeFull();
 
@@ -206,7 +206,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         this.grid.addComponentColumn(this::createActionButtons).setHeader("Actions").setWidth("200px").setFlexGrow(0);
     }
 
-    private HorizontalLayout createActionButtons(final UserAccount account) {
+    private HorizontalLayout createActionButtons(final UserAccountDto account) {
         final var layout = new HorizontalLayout();
         layout.setSpacing(true);
 
@@ -228,12 +228,12 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         this.accountDialog.setCloseOnEsc(true);
         this.accountDialog.setCloseOnOutsideClick(false);
 
-        this.binder = new Binder<>(UserAccount.class);
+        this.binder = new Binder<>(UserAccountDto.class);
     }
 
-    private void openAccountDialog(final UserAccount account) {
+    private void openAccountDialog(final UserAccountDto account) {
         this.accountDialog.removeAll();
-        this.currentAccount = account != null ? account : new UserAccount();
+        this.currentAccount = account != null ? account : new UserAccountDto();
 
         final var title = new H3(account != null ? "Edit Account" : "Create Account");
 
@@ -301,7 +301,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         }
     }
 
-    private void deleteAccount(final UserAccount account) {
+    private void deleteAccount(final UserAccountDto account) {
         try {
             if (this.accountService.deleteAccount(account.id)) {
                 NotificationUtil.showSuccess("Account deleted successfully");
@@ -328,7 +328,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         }
 
         try {
-            final List<UserAccount> accounts = this.accountService.searchAccounts(query.trim());
+            final List<UserAccountDto> accounts = this.accountService.searchAccounts(query.trim());
             this.grid.setItems(accounts);
         } catch (final AuthenticationException e) {
             NotificationUtil.showError("Session expired. Please log in again.");
@@ -349,7 +349,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         }
 
         try {
-            final List<UserAccount> accounts = this.accountService.getAccountsByUser(userId.longValue());
+            final List<UserAccountDto> accounts = this.accountService.getAccountsByUser(userId.longValue());
             this.grid.setItems(accounts);
         } catch (final AuthenticationException e) {
             NotificationUtil.showError("Session expired. Please log in again.");
@@ -362,7 +362,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         }
     }
 
-    private void showPayments(final UserAccount account) {
+    private void showPayments(final UserAccountDto account) {
         this.getUI().ifPresent(ui -> ui.navigate("payments"));
         NotificationUtil.showInfo("Navigated to payments view. You can filter by account ID: " + account.id);
     }

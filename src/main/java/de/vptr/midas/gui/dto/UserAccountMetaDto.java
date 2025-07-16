@@ -5,26 +5,26 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class UserAccountMeta {
+public class UserAccountMetaDto {
 
     @JsonProperty("id")
     public Long id;
 
     @JsonProperty("user")
-    public User user;
+    public UserDto user;
 
     @JsonProperty("account")
-    public UserAccount account;
+    public UserAccountDto account;
 
     @JsonProperty("timestamp")
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
     public LocalDateTime timestamp;
 
-    public UserAccountMeta() {
+    public UserAccountMetaDto() {
         // Default constructor for Jackson
     }
 
-    public UserAccountMeta(final User user, final UserAccount account, final LocalDateTime timestamp) {
+    public UserAccountMetaDto(final UserDto user, final UserAccountDto account, final LocalDateTime timestamp) {
         this.user = user;
         this.account = account;
         this.timestamp = timestamp;
@@ -35,11 +35,11 @@ public class UserAccountMeta {
         return this.id;
     }
 
-    public User getUser() {
+    public UserDto getUser() {
         return this.user;
     }
 
-    public UserAccount getAccount() {
+    public UserAccountDto getAccount() {
         return this.account;
     }
 
@@ -52,11 +52,11 @@ public class UserAccountMeta {
         this.id = id;
     }
 
-    public void setUser(final User user) {
+    public void setUser(final UserDto user) {
         this.user = user;
     }
 
-    public void setAccount(final UserAccount account) {
+    public void setAccount(final UserAccountDto account) {
         this.account = account;
     }
 

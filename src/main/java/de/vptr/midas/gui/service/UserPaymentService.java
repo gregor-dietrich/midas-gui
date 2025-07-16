@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.vptr.midas.gui.client.UserPaymentClient;
-import de.vptr.midas.gui.dto.UserPayment;
+import de.vptr.midas.gui.dto.UserPaymentDto;
 import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,7 +31,8 @@ public class UserPaymentService {
     @Inject
     AuthService authService;
 
-    public List<UserPayment> getAllPayments(final String authHeader) throws ServiceException, AuthenticationException {
+    public List<UserPaymentDto> getAllPayments(final String authHeader)
+            throws ServiceException, AuthenticationException {
         LOG.debug("Fetching all payments with provided auth header");
         try {
             if (authHeader == null) {
@@ -55,7 +56,7 @@ public class UserPaymentService {
         }
     }
 
-    public Optional<UserPayment> getPaymentById(final Long id) {
+    public Optional<UserPaymentDto> getPaymentById(final Long id) {
         LOG.debug("Fetching payment with ID: {}", id);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -66,7 +67,7 @@ public class UserPaymentService {
 
             final Response response = this.paymentClient.getPayment(id, authHeader);
             if (response.getStatus() == 200) {
-                return Optional.of(response.readEntity(UserPayment.class));
+                return Optional.of(response.readEntity(UserPaymentDto.class));
             } else if (response.getStatus() == 404) {
                 return Optional.empty();
             } else {
@@ -88,7 +89,7 @@ public class UserPaymentService {
         }
     }
 
-    public List<UserPayment> getPaymentsByUser(final Long userId) {
+    public List<UserPaymentDto> getPaymentsByUser(final Long userId) {
         LOG.debug("Fetching payments for user: {}", userId);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -114,7 +115,7 @@ public class UserPaymentService {
         }
     }
 
-    public List<UserPayment> getRecentPayments(final int limit) {
+    public List<UserPaymentDto> getRecentPayments(final int limit) {
         LOG.debug("Fetching recent payments with limit: {}", limit);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -140,7 +141,7 @@ public class UserPaymentService {
         }
     }
 
-    public List<UserPayment> getPaymentsByDateRange(final LocalDate startDate, final LocalDate endDate) {
+    public List<UserPaymentDto> getPaymentsByDateRange(final LocalDate startDate, final LocalDate endDate) {
         LOG.debug("Fetching payments for date range: {} to {}", startDate, endDate);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -166,7 +167,7 @@ public class UserPaymentService {
         }
     }
 
-    public UserPayment createPayment(final UserPayment payment) {
+    public UserPaymentDto createPayment(final UserPaymentDto payment) {
         LOG.debug("Creating new payment: {}", payment);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -177,7 +178,7 @@ public class UserPaymentService {
 
             final Response response = this.paymentClient.createPayment(payment, authHeader);
             if (response.getStatus() == 201) {
-                return response.readEntity(UserPayment.class);
+                return response.readEntity(UserPaymentDto.class);
             } else {
                 throw new ServiceException("Failed to create payment: " + response.getStatus());
             }
@@ -197,7 +198,7 @@ public class UserPaymentService {
         }
     }
 
-    public UserPayment updatePayment(final UserPayment payment) {
+    public UserPaymentDto updatePayment(final UserPaymentDto payment) {
         LOG.debug("Updating payment: {}", payment);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -208,7 +209,7 @@ public class UserPaymentService {
 
             final Response response = this.paymentClient.updatePayment(payment.id, payment, authHeader);
             if (response.getStatus() == 200) {
-                return response.readEntity(UserPayment.class);
+                return response.readEntity(UserPaymentDto.class);
             } else {
                 throw new ServiceException("Failed to update payment: " + response.getStatus());
             }

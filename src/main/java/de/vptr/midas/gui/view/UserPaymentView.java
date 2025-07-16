@@ -32,7 +32,7 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
-import de.vptr.midas.gui.dto.UserPayment;
+import de.vptr.midas.gui.dto.UserPaymentDto;
 import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
 import de.vptr.midas.gui.service.AuthService;
@@ -51,7 +51,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
     @Inject
     AuthService authService;
 
-    private Grid<UserPayment> grid;
+    private Grid<UserPaymentDto> grid;
     private Button refreshButton;
     private Button createButton;
     private IntegerField limitField;
@@ -61,8 +61,8 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
     private Button filterRecentButton;
 
     private Dialog paymentDialog;
-    private Binder<UserPayment> binder;
-    private UserPayment currentPayment;
+    private Binder<UserPaymentDto> binder;
+    private UserPaymentDto currentPayment;
 
     public UserPaymentView() {
         this.setSizeFull();
@@ -194,7 +194,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
     }
 
     private void createGrid() {
-        this.grid = new Grid<>(UserPayment.class, false);
+        this.grid = new Grid<>(UserPaymentDto.class, false);
         this.grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         this.grid.setSizeFull();
 
@@ -217,7 +217,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         this.grid.addComponentColumn(this::createActionButtons).setHeader("Actions").setWidth("150px").setFlexGrow(0);
     }
 
-    private HorizontalLayout createActionButtons(final UserPayment payment) {
+    private HorizontalLayout createActionButtons(final UserPaymentDto payment) {
         final var layout = new HorizontalLayout();
         layout.setSpacing(true);
 
@@ -237,12 +237,12 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         this.paymentDialog.setCloseOnEsc(true);
         this.paymentDialog.setCloseOnOutsideClick(false);
 
-        this.binder = new Binder<>(UserPayment.class);
+        this.binder = new Binder<>(UserPaymentDto.class);
     }
 
-    private void openPaymentDialog(final UserPayment payment) {
+    private void openPaymentDialog(final UserPaymentDto payment) {
         this.paymentDialog.removeAll();
-        this.currentPayment = payment != null ? payment : new UserPayment();
+        this.currentPayment = payment != null ? payment : new UserPaymentDto();
 
         final var title = new H3(payment != null ? "Edit Payment" : "Create Payment");
 
@@ -322,7 +322,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         }
     }
 
-    private void deletePayment(final UserPayment payment) {
+    private void deletePayment(final UserPaymentDto payment) {
         try {
             if (this.paymentService.deletePayment(payment.id)) {
                 NotificationUtil.showSuccess("Payment deleted successfully");
@@ -344,7 +344,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
     private void loadRecentPayments() {
         try {
             final int limit = this.limitField.getValue() != null ? this.limitField.getValue() : 10;
-            final List<UserPayment> payments = this.paymentService.getRecentPayments(limit);
+            final List<UserPaymentDto> payments = this.paymentService.getRecentPayments(limit);
             this.grid.setItems(payments);
         } catch (final AuthenticationException e) {
             NotificationUtil.showError("Session expired. Please log in again.");
@@ -372,7 +372,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         }
 
         try {
-            final List<UserPayment> payments = this.paymentService.getPaymentsByDateRange(startDate, endDate);
+            final List<UserPaymentDto> payments = this.paymentService.getPaymentsByDateRange(startDate, endDate);
             this.grid.setItems(payments);
         } catch (final AuthenticationException e) {
             NotificationUtil.showError("Session expired. Please log in again.");

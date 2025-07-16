@@ -9,8 +9,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import de.vptr.midas.gui.client.UserAccountClient;
-import de.vptr.midas.gui.dto.UserAccount;
-import de.vptr.midas.gui.dto.UserPayment;
+import de.vptr.midas.gui.dto.UserAccountDto;
+import de.vptr.midas.gui.dto.UserPaymentDto;
 import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -31,7 +31,8 @@ public class UserAccountService {
     @Inject
     AuthService authService;
 
-    public List<UserAccount> getAllAccounts(final String authHeader) throws ServiceException, AuthenticationException {
+    public List<UserAccountDto> getAllAccounts(final String authHeader)
+            throws ServiceException, AuthenticationException {
         LOG.debug("Fetching all user accounts with provided auth header");
         try {
             if (authHeader == null) {
@@ -55,7 +56,7 @@ public class UserAccountService {
         }
     }
 
-    public Optional<UserAccount> getAccountById(final Long id) {
+    public Optional<UserAccountDto> getAccountById(final Long id) {
         LOG.debug("Fetching account with ID: {}", id);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -66,7 +67,7 @@ public class UserAccountService {
 
             final Response response = this.accountClient.getAccount(id, authHeader);
             if (response.getStatus() == 200) {
-                return Optional.of(response.readEntity(UserAccount.class));
+                return Optional.of(response.readEntity(UserAccountDto.class));
             } else if (response.getStatus() == 404) {
                 return Optional.empty();
             } else {
@@ -88,7 +89,7 @@ public class UserAccountService {
         }
     }
 
-    public Optional<UserAccount> getAccountByName(final String name) {
+    public Optional<UserAccountDto> getAccountByName(final String name) {
         LOG.debug("Fetching account with name: {}", name);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -99,7 +100,7 @@ public class UserAccountService {
 
             final Response response = this.accountClient.getAccountByName(name, authHeader);
             if (response.getStatus() == 200) {
-                return Optional.of(response.readEntity(UserAccount.class));
+                return Optional.of(response.readEntity(UserAccountDto.class));
             } else if (response.getStatus() == 404) {
                 return Optional.empty();
             } else {
@@ -121,7 +122,7 @@ public class UserAccountService {
         }
     }
 
-    public List<UserAccount> getAccountsByUser(final Long userId) {
+    public List<UserAccountDto> getAccountsByUser(final Long userId) {
         LOG.debug("Fetching accounts for user: {}", userId);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -147,7 +148,7 @@ public class UserAccountService {
         }
     }
 
-    public List<UserAccount> searchAccounts(final String query) {
+    public List<UserAccountDto> searchAccounts(final String query) {
         LOG.debug("Searching accounts with query: {}", query);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -174,7 +175,7 @@ public class UserAccountService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<UserPayment> getOutgoingPayments(final Long accountId) {
+    public List<UserPaymentDto> getOutgoingPayments(final Long accountId) {
         LOG.debug("Fetching outgoing payments for account: {}", accountId);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -207,7 +208,7 @@ public class UserAccountService {
     }
 
     @SuppressWarnings("unchecked")
-    public List<UserPayment> getIncomingPayments(final Long accountId) {
+    public List<UserPaymentDto> getIncomingPayments(final Long accountId) {
         LOG.debug("Fetching incoming payments for account: {}", accountId);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -239,7 +240,7 @@ public class UserAccountService {
         }
     }
 
-    public UserAccount createAccount(final UserAccount account) {
+    public UserAccountDto createAccount(final UserAccountDto account) {
         LOG.debug("Creating new account: {}", account);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -250,7 +251,7 @@ public class UserAccountService {
 
             final Response response = this.accountClient.createAccount(account, authHeader);
             if (response.getStatus() == 201) {
-                return response.readEntity(UserAccount.class);
+                return response.readEntity(UserAccountDto.class);
             } else {
                 throw new ServiceException("Failed to create account: " + response.getStatus());
             }
@@ -270,7 +271,7 @@ public class UserAccountService {
         }
     }
 
-    public UserAccount updateAccount(final UserAccount account) {
+    public UserAccountDto updateAccount(final UserAccountDto account) {
         LOG.debug("Updating account: {}", account);
         try {
             final var authHeader = this.authService.getBasicAuthHeader();
@@ -281,7 +282,7 @@ public class UserAccountService {
 
             final Response response = this.accountClient.updateAccount(account.id, account, authHeader);
             if (response.getStatus() == 200) {
-                return response.readEntity(UserAccount.class);
+                return response.readEntity(UserAccountDto.class);
             } else {
                 throw new ServiceException("Failed to update account: " + response.getStatus());
             }
