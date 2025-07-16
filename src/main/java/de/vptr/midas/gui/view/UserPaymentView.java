@@ -176,7 +176,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         final var buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
 
-        this.refreshButton = new Button("Refresh", e -> this.loadPayments());
+        this.refreshButton = new Button("Refresh", e -> this.loadPaymentsAsync());
         this.refreshButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         this.createButton = new Button("Create Payment", e -> this.openPaymentDialog(null));
@@ -300,7 +300,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
             }
 
             this.paymentDialog.close();
-            this.loadPayments();
+            this.loadPaymentsAsync();
 
         } catch (final ValidationException e) {
             NotificationUtil.showError("Please check the form for errors");
@@ -319,7 +319,7 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         try {
             if (this.paymentService.deletePayment(payment.id)) {
                 NotificationUtil.showSuccess("Payment deleted successfully");
-                this.loadPayments();
+                this.loadPaymentsAsync();
             } else {
                 NotificationUtil.showError("Failed to delete payment");
             }
@@ -330,22 +330,6 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
             NotificationUtil.showError("Error deleting payment: " + e.getMessage());
         } catch (final Exception e) {
             LOG.error("Unexpected error deleting payment", e);
-            NotificationUtil.showError("Unexpected error occurred");
-        }
-    }
-
-    private void loadPayments() {
-        try {
-            final List<UserPayment> payments = this.paymentService
-                    .getAllPayments(this.authService.getBasicAuthHeader());
-            this.grid.setItems(payments);
-        } catch (final AuthenticationException e) {
-            NotificationUtil.showError("Session expired. Please log in again.");
-            this.getUI().ifPresent(ui -> ui.navigate(LoginView.class));
-        } catch (final ServiceException e) {
-            NotificationUtil.showError("Error loading payments: " + e.getMessage());
-        } catch (final Exception e) {
-            LOG.error("Unexpected error loading payments", e);
             NotificationUtil.showError("Unexpected error occurred");
         }
     }

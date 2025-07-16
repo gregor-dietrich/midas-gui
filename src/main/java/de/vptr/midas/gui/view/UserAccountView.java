@@ -165,7 +165,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         final var buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
 
-        this.refreshButton = new Button("Refresh", e -> this.loadAccounts());
+        this.refreshButton = new Button("Refresh", e -> this.loadAccountsAsync());
         this.refreshButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
         this.createButton = new Button("Create Account", e -> this.openAccountDialog(null));
@@ -269,7 +269,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
             }
 
             this.accountDialog.close();
-            this.loadAccounts();
+            this.loadAccountsAsync();
 
         } catch (final ValidationException e) {
             NotificationUtil.showError("Please check the form for errors");
@@ -288,7 +288,7 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         try {
             if (this.accountService.deleteAccount(account.id)) {
                 NotificationUtil.showSuccess("Account deleted successfully");
-                this.loadAccounts();
+                this.loadAccountsAsync();
             } else {
                 NotificationUtil.showError("Failed to delete account");
             }
@@ -299,22 +299,6 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
             NotificationUtil.showError("Error deleting account: " + e.getMessage());
         } catch (final Exception e) {
             LOG.error("Unexpected error deleting account", e);
-            NotificationUtil.showError("Unexpected error occurred");
-        }
-    }
-
-    private void loadAccounts() {
-        try {
-            final List<UserAccount> accounts = this.accountService
-                    .getAllAccounts(this.authService.getBasicAuthHeader());
-            this.grid.setItems(accounts);
-        } catch (final AuthenticationException e) {
-            NotificationUtil.showError("Session expired. Please log in again.");
-            this.getUI().ifPresent(ui -> ui.navigate(LoginView.class));
-        } catch (final ServiceException e) {
-            NotificationUtil.showError("Error loading accounts: " + e.getMessage());
-        } catch (final Exception e) {
-            LOG.error("Unexpected error loading accounts", e);
             NotificationUtil.showError("Unexpected error occurred");
         }
     }
