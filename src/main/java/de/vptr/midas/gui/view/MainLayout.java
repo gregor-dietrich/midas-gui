@@ -31,6 +31,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     private static final Logger LOG = LoggerFactory.getLogger(MainLayout.class);
 
     private Button logoutButton;
+    private Tabs navigationTabs;
 
     @Inject
     AuthService authService;
@@ -76,6 +77,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         if (targetView == BackendErrorView.class) {
             LOG.trace("Navigating to backend error view, skipping all checks");
             this.removeLogoutButtonFromTopBar(); // Hide logout button on error view
+            this.hideNavigationTabs(); // Hide navigation tabs on error view
             return;
         }
 
@@ -102,6 +104,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         if (targetView == LoginView.class) {
             LOG.trace("Navigating to login view, skipping authentication check");
             this.removeLogoutButtonFromTopBar(); // Hide logout button on login view
+            this.hideNavigationTabs(); // Hide navigation tabs on login view
             return;
         }
 
@@ -112,8 +115,9 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
             return;
         }
 
-        // User is authenticated - show logout button
+        // User is authenticated - show logout button and navigation tabs
         this.addLogoutButtonToTopBar();
+        this.showNavigationTabs();
 
         LOG.trace("All checks passed for {}", targetView.getSimpleName());
     }
@@ -128,13 +132,16 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
                     // Don't show logout button on login or error views
                     if (!"login".equals(path) && !"backend-error".equals(path)) {
                         this.addLogoutButtonToTopBar();
+                        this.showNavigationTabs();
                     } else {
                         this.removeLogoutButtonFromTopBar();
+                        this.hideNavigationTabs();
                     }
                 }
             });
         } else {
             this.removeLogoutButtonFromTopBar();
+            this.hideNavigationTabs();
         }
     }
 
@@ -149,11 +156,11 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     private void createTopBar() {
         this.topBar = new HorizontalLayout();
         this.topBar.setWidthFull();
-        this.topBar.setJustifyContentMode(JustifyContentMode.BETWEEN); // Change to BETWEEN
+        this.topBar.setJustifyContentMode(JustifyContentMode.BETWEEN);
         this.topBar.setPadding(true);
 
         // Create navigation menu
-        final var navigationTabs = createNavigationTabs();
+        this.navigationTabs = createNavigationTabs();
 
         // Create right side components container
         this.rightSide = new HorizontalLayout();
@@ -162,9 +169,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         final var themeToggle = new ThemeToggleButton(this.themeService);
         this.rightSide.add(themeToggle);
 
-        // Add navigation to left and controls to right
-        this.topBar.add(navigationTabs, this.rightSide);
-
+        this.topBar.add(this.rightSide);
         this.addComponentAsFirst(this.topBar);
     }
 
@@ -183,6 +188,24 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
         // tabs.add(usersTab, paymentsTab);
 
         return tabs;
+    }
+
+    private void showNavigationTabs() {
+        if (this.navigationTabs != null && this.topBar != null) {
+            if (!this.topBar.getChildren().anyMatch(component -> component == this.navigationTabs)) {
+                this.topBar.removeAll();
+                this.topBar.add(this.navigationTabs, this.rightSide);
+                this.topBar.setJustifyContentMode(JustifyContentMode.BETWEEN);
+            }
+        }
+    }
+
+    private void hideNavigationTabs() {
+        if (this.navigationTabs != null && this.topBar != null) {
+            this.topBar.removeAll();
+            this.topBar.add(this.rightSide);
+            this.topBar.setJustifyContentMode(JustifyContentMode.END);
+        }
     }
 
     private Button createLogoutButton() {
