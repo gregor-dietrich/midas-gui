@@ -7,6 +7,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,6 +18,8 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.icon.Icon;
+import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
@@ -176,11 +179,15 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         final var buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
 
-        this.refreshButton = new Button("Refresh", e -> this.loadPaymentsAsync());
+        this.refreshButton = new Button("", e -> this.loadPaymentsAsync());
         this.refreshButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
+        this.refreshButton.setIcon(new Icon(VaadinIcon.REFRESH));
+        this.refreshButton.setTooltipText("Refresh");
 
-        this.createButton = new Button("Create Payment", e -> this.openPaymentDialog(null));
+        this.createButton = new Button("", e -> this.openPaymentDialog(null));
         this.createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
+        this.createButton.setIcon(LineAwesomeIcon.PLUS_SOLID.create());
+        this.createButton.setTooltipText("Create Payment");
 
         buttonLayout.add(this.refreshButton, this.createButton);
         return buttonLayout;

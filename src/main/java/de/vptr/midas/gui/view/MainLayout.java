@@ -46,6 +46,16 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     private HorizontalLayout rightSide;
     private boolean initialized = false;
 
+    private Tabs createNavigationTabs() {
+        final var tabs = new Tabs();
+
+        tabs.add(new Tab(new RouterLink("Home", GreetView.class)));
+        tabs.add(new Tab(new RouterLink("Accounts", UserAccountView.class)));
+        tabs.add(new Tab(new RouterLink("Payments", UserPaymentView.class)));
+
+        return tabs;
+    }
+
     /**
      * Get the shared top bar for views that need to add additional components
      */
@@ -171,23 +181,6 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
 
         this.topBar.add(this.rightSide);
         this.addComponentAsFirst(this.topBar);
-    }
-
-    private Tabs createNavigationTabs() {
-        final var tabs = new Tabs();
-
-        // Create tabs with RouterLinks
-        final var greetTab = new Tab(new RouterLink("Home", GreetView.class));
-        final var accountsTab = new Tab(new RouterLink("Accounts", UserAccountView.class));
-        // Add more tabs as needed
-        // final var usersTab = new Tab(new RouterLink("Users", UserView.class));
-        // final var paymentsTab = new Tab(new RouterLink("Payments",
-        // PaymentView.class));
-
-        tabs.add(greetTab, accountsTab);
-        // tabs.add(usersTab, paymentsTab);
-
-        return tabs;
     }
 
     private void showNavigationTabs() {
