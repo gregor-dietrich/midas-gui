@@ -11,6 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import de.vptr.midas.gui.client.UserPaymentClient;
 import de.vptr.midas.gui.dto.UserPayment;
+import de.vptr.midas.gui.exception.AuthenticationException;
+import de.vptr.midas.gui.exception.ServiceException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.ProcessingException;
@@ -250,22 +252,6 @@ public class UserPaymentService {
         } catch (final Exception e) {
             LOG.error("Unexpected error while deleting payment {}", id, e);
             throw new ServiceException("Unexpected error", e);
-        }
-    }
-
-    public static class ServiceException extends RuntimeException {
-        public ServiceException(final String message) {
-            super(message);
-        }
-
-        public ServiceException(final String message, final Throwable cause) {
-            super(message, cause);
-        }
-    }
-
-    public static class AuthenticationException extends RuntimeException {
-        public AuthenticationException(final String message) {
-            super(message);
         }
     }
 }

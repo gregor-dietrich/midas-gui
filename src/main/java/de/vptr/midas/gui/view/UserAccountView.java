@@ -26,10 +26,10 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
 import de.vptr.midas.gui.dto.UserAccount;
+import de.vptr.midas.gui.exception.AuthenticationException;
+import de.vptr.midas.gui.exception.ServiceException;
 import de.vptr.midas.gui.service.AuthService;
 import de.vptr.midas.gui.service.UserAccountService;
-import de.vptr.midas.gui.service.UserAccountService.AuthenticationException;
-import de.vptr.midas.gui.service.UserAccountService.ServiceException;
 import de.vptr.midas.gui.util.NotificationUtil;
 import jakarta.inject.Inject;
 
