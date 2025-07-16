@@ -6,6 +6,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -15,6 +16,7 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -182,7 +184,17 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
 
         // Configure columns
         this.grid.addColumn(account -> account.id).setHeader("ID").setWidth("80px").setFlexGrow(0);
-        this.grid.addColumn(account -> account.name).setHeader("Name").setFlexGrow(1);
+
+        // Make the name column clickable
+        this.grid.addComponentColumn(account -> {
+            final var nameSpan = new Span(account.name);
+            nameSpan.getStyle().set("color", "var(--lumo-primary-text-color)");
+            nameSpan.getStyle().set("cursor", "pointer");
+            nameSpan.getStyle().set("width", "100%");
+            nameSpan.getStyle().set("display", "block");
+            nameSpan.addClickListener(e -> this.showPayments(account));
+            return nameSpan;
+        }).setHeader("Name").setFlexGrow(1);
 
         // Add action column
         this.grid.addComponentColumn(this::createActionButtons).setHeader("Actions").setWidth("200px").setFlexGrow(0);
@@ -192,16 +204,15 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         final var layout = new HorizontalLayout();
         layout.setSpacing(true);
 
-        final var editButton = new Button("Edit", e -> this.openAccountDialog(account));
-        editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
+        final var editButton = new Button("", e -> this.openAccountDialog(account));
+        editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
+        editButton.setIcon(LineAwesomeIcon.EDIT_SOLID.create());
 
-        final var paymentsButton = new Button("Payments", e -> this.showPayments(account));
-        paymentsButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_CONTRAST);
-
-        final var deleteButton = new Button("Delete", e -> this.deleteAccount(account));
+        final var deleteButton = new Button("", e -> this.deleteAccount(account));
         deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        deleteButton.setIcon(LineAwesomeIcon.TRASH_ALT_SOLID.create());
 
-        layout.add(editButton, paymentsButton, deleteButton);
+        layout.add(editButton, deleteButton);
         return layout;
     }
 
@@ -346,7 +357,6 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
     }
 
     private void showPayments(final UserAccount account) {
-        // Navigate to payments view with account filter
         this.getUI().ifPresent(ui -> ui.navigate("payments"));
         NotificationUtil.showInfo("Navigated to payments view. You can filter by account ID: " + account.id);
     }

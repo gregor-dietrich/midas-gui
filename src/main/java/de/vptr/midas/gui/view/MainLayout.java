@@ -13,9 +13,12 @@ import com.vaadin.flow.component.icon.Icon;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.component.tabs.Tab;
+import com.vaadin.flow.component.tabs.Tabs;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.RouterLayout;
+import com.vaadin.flow.router.RouterLink;
 
 import de.vptr.midas.gui.component.ThemeToggleButton;
 import de.vptr.midas.gui.service.AuthService;
@@ -39,6 +42,7 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     ThemeService themeService;
 
     private HorizontalLayout topBar;
+    private HorizontalLayout rightSide;
     private boolean initialized = false;
 
     /**
@@ -145,13 +149,40 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     private void createTopBar() {
         this.topBar = new HorizontalLayout();
         this.topBar.setWidthFull();
-        this.topBar.setJustifyContentMode(JustifyContentMode.END);
+        this.topBar.setJustifyContentMode(JustifyContentMode.BETWEEN); // Change to BETWEEN
         this.topBar.setPadding(true);
 
+        // Create navigation menu
+        final var navigationTabs = createNavigationTabs();
+
+        // Create right side components container
+        this.rightSide = new HorizontalLayout();
+        this.rightSide.setSpacing(true);
+
         final var themeToggle = new ThemeToggleButton(this.themeService);
-        this.topBar.add(themeToggle);
+        this.rightSide.add(themeToggle);
+
+        // Add navigation to left and controls to right
+        this.topBar.add(navigationTabs, this.rightSide);
 
         this.addComponentAsFirst(this.topBar);
+    }
+
+    private Tabs createNavigationTabs() {
+        final var tabs = new Tabs();
+
+        // Create tabs with RouterLinks
+        final var greetTab = new Tab(new RouterLink("Home", GreetView.class));
+        final var accountsTab = new Tab(new RouterLink("Accounts", UserAccountView.class));
+        // Add more tabs as needed
+        // final var usersTab = new Tab(new RouterLink("Users", UserView.class));
+        // final var paymentsTab = new Tab(new RouterLink("Payments",
+        // PaymentView.class));
+
+        tabs.add(greetTab, accountsTab);
+        // tabs.add(usersTab, paymentsTab);
+
+        return tabs;
     }
 
     private Button createLogoutButton() {
@@ -166,28 +197,28 @@ public class MainLayout extends VerticalLayout implements RouterLayout, BeforeEn
     }
 
     private void addLogoutButtonToTopBar() {
-        if (this.topBar != null) {
+        if (this.rightSide != null) {
             // Remove existing logout button if present
             if (this.logoutButton != null) {
-                this.topBar.remove(this.logoutButton);
+                this.rightSide.remove(this.logoutButton);
             }
 
             // Create new logout button
             this.logoutButton = this.createLogoutButton();
 
             // Add logout button
-            final var componentCount = this.topBar.getComponentCount();
+            final var componentCount = this.rightSide.getComponentCount();
             if (componentCount > 0) {
-                this.topBar.addComponentAtIndex(componentCount - 1, this.logoutButton);
+                this.rightSide.addComponentAtIndex(componentCount - 1, this.logoutButton);
             } else {
-                this.topBar.add(this.logoutButton);
+                this.rightSide.add(this.logoutButton);
             }
         }
     }
 
     private void removeLogoutButtonFromTopBar() {
-        if (this.logoutButton != null && this.topBar != null) {
-            this.topBar.remove(this.logoutButton);
+        if (this.logoutButton != null && this.rightSide != null) {
+            this.rightSide.remove(this.logoutButton);
             this.logoutButton = null;
         }
     }
