@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -17,8 +16,6 @@ import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.NumberField;
@@ -29,6 +26,10 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
+import de.vptr.midas.gui.component.CreateButton;
+import de.vptr.midas.gui.component.DeleteButton;
+import de.vptr.midas.gui.component.EditButton;
+import de.vptr.midas.gui.component.RefreshButton;
 import de.vptr.midas.gui.dto.UserAccountDto;
 import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
@@ -49,8 +50,6 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
     AuthService authService;
 
     private Grid<UserAccountDto> grid;
-    private Button refreshButton;
-    private Button createButton;
     private TextField searchField;
     private Button searchButton;
     private NumberField userIdField;
@@ -169,17 +168,10 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         final var buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
 
-        this.refreshButton = new Button("", e -> this.loadAccountsAsync());
-        this.refreshButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        this.refreshButton.setIcon(new Icon(VaadinIcon.REFRESH));
-        this.refreshButton.setTooltipText("Refresh");
+        final var refreshButton = new RefreshButton(e -> this.loadAccountsAsync());
+        final var createButton = new CreateButton(e -> this.openAccountDialog(null), "Create Account");
 
-        this.createButton = new Button("", e -> this.openAccountDialog(null));
-        this.createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        this.createButton.setIcon(LineAwesomeIcon.PLUS_SOLID.create());
-        this.createButton.setTooltipText("Create Account");
-
-        buttonLayout.add(this.refreshButton, this.createButton);
+        buttonLayout.add(refreshButton, createButton);
         return buttonLayout;
     }
 
@@ -210,13 +202,8 @@ public class UserAccountView extends VerticalLayout implements BeforeEnterObserv
         final var layout = new HorizontalLayout();
         layout.setSpacing(true);
 
-        final var editButton = new Button("", e -> this.openAccountDialog(account));
-        editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ICON);
-        editButton.setIcon(LineAwesomeIcon.EDIT_SOLID.create());
-
-        final var deleteButton = new Button("", e -> this.deleteAccount(account));
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
-        deleteButton.setIcon(LineAwesomeIcon.TRASH_ALT_SOLID.create());
+        final var editButton = new EditButton(e -> this.openAccountDialog(account));
+        final var deleteButton = new DeleteButton(e -> this.deleteAccount(account));
 
         layout.add(editButton, deleteButton);
         return layout;

@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.vaadin.lineawesome.LineAwesomeIcon;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -18,8 +17,6 @@ import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H3;
-import com.vaadin.flow.component.icon.Icon;
-import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.BigDecimalField;
@@ -32,6 +29,10 @@ import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.Route;
 
+import de.vptr.midas.gui.component.CreateButton;
+import de.vptr.midas.gui.component.DeleteButton;
+import de.vptr.midas.gui.component.EditButton;
+import de.vptr.midas.gui.component.RefreshButton;
 import de.vptr.midas.gui.dto.UserPaymentDto;
 import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
@@ -52,8 +53,6 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
     AuthService authService;
 
     private Grid<UserPaymentDto> grid;
-    private Button refreshButton;
-    private Button createButton;
     private IntegerField limitField;
     private DatePicker startDatePicker;
     private DatePicker endDatePicker;
@@ -179,17 +178,10 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         final var buttonLayout = new HorizontalLayout();
         buttonLayout.setSpacing(true);
 
-        this.refreshButton = new Button("", e -> this.loadPaymentsAsync());
-        this.refreshButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
-        this.refreshButton.setIcon(new Icon(VaadinIcon.REFRESH));
-        this.refreshButton.setTooltipText("Refresh");
+        final var refreshButton = new RefreshButton(e -> this.loadPaymentsAsync());
+        final var createButton = new CreateButton(e -> this.openPaymentDialog(null), "Create Payment");
 
-        this.createButton = new Button("", e -> this.openPaymentDialog(null));
-        this.createButton.addThemeVariants(ButtonVariant.LUMO_SUCCESS);
-        this.createButton.setIcon(LineAwesomeIcon.PLUS_SOLID.create());
-        this.createButton.setTooltipText("Create Payment");
-
-        buttonLayout.add(this.refreshButton, this.createButton);
+        buttonLayout.add(refreshButton, createButton);
         return buttonLayout;
     }
 
@@ -221,11 +213,8 @@ public class UserPaymentView extends VerticalLayout implements BeforeEnterObserv
         final var layout = new HorizontalLayout();
         layout.setSpacing(true);
 
-        final var editButton = new Button("Edit", e -> this.openPaymentDialog(payment));
-        editButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_TERTIARY);
-
-        final var deleteButton = new Button("Delete", e -> this.deletePayment(payment));
-        deleteButton.addThemeVariants(ButtonVariant.LUMO_SMALL, ButtonVariant.LUMO_ERROR);
+        final var editButton = new EditButton(e -> this.openPaymentDialog(payment));
+        final var deleteButton = new DeleteButton(e -> this.deletePayment(payment));
 
         layout.add(editButton, deleteButton);
         return layout;
