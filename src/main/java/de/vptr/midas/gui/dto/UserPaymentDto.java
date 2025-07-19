@@ -32,11 +32,11 @@ public class UserPaymentDto {
     public String comment;
 
     @JsonProperty("created")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime created;
 
     @JsonProperty("lastEdit")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime lastEdit;
 
     public UserPaymentDto() {
