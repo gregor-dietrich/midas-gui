@@ -32,12 +32,11 @@ public class PostService {
 
     public List<PostDto> getAllPosts(final String authHeader) {
         LOG.debug("Fetching all posts");
+        if (authHeader == null) {
+            LOG.warn("No authentication header available");
+            throw new AuthenticationException("Authentication required");
+        }
         try {
-            if (authHeader == null) {
-                LOG.warn("No authentication header available");
-                throw new AuthenticationException("Authentication required");
-            }
-
             return this.postClient.getAllPosts(authHeader);
         } catch (final ProcessingException e) {
             LOG.error("Connection error while fetching posts", e);
@@ -168,18 +167,17 @@ public class PostService {
 
     public PostDto createPost(final PostDto post) {
         LOG.debug("Creating new post: {}", post.title);
+        final var authHeader = this.authService.getBasicAuthHeader();
+        if (authHeader == null) {
+            LOG.warn("No authentication header available");
+            throw new AuthenticationException("Not authenticated");
+        }
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
-            if (authHeader == null) {
-                LOG.warn("No authentication header available");
-                throw new AuthenticationException("Not authenticated");
-            }
-
             final Response response = this.postClient.createPost(post, authHeader);
             if (response.getStatus() == 201) {
                 return response.readEntity(PostDto.class);
             } else {
-                throw new ServiceException("Failed to create post: " + response.getStatus());
+                throw new ServiceException("Failed to create post");
             }
         } catch (final ProcessingException e) {
             LOG.error("Connection error while creating post", e);
@@ -193,24 +191,23 @@ public class PostService {
             throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);
         } catch (final Exception e) {
             LOG.error("Unexpected error while creating post", e);
-            throw new ServiceException("Unexpected error", e);
+            throw new ServiceException("Failed to create post", e);
         }
     }
 
     public PostDto updatePost(final PostDto post) {
         LOG.debug("Updating post: {}", post.id);
+        final var authHeader = this.authService.getBasicAuthHeader();
+        if (authHeader == null) {
+            LOG.warn("No authentication header available");
+            throw new AuthenticationException("Not authenticated");
+        }
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
-            if (authHeader == null) {
-                LOG.warn("No authentication header available");
-                throw new AuthenticationException("Not authenticated");
-            }
-
             final Response response = this.postClient.updatePost(post.id, post, authHeader);
             if (response.getStatus() == 200) {
                 return response.readEntity(PostDto.class);
             } else {
-                throw new ServiceException("Failed to update post: " + response.getStatus());
+                throw new ServiceException("Failed to update post");
             }
         } catch (final ProcessingException e) {
             LOG.error("Connection error while updating post", e);
@@ -224,7 +221,7 @@ public class PostService {
             throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);
         } catch (final Exception e) {
             LOG.error("Unexpected error while updating post", e);
-            throw new ServiceException("Unexpected error", e);
+            throw new ServiceException("Failed to update post", e);
         }
     }
 
