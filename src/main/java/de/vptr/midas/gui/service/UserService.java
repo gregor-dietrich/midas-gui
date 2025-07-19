@@ -1,6 +1,5 @@
 package de.vptr.midas.gui.service;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -35,9 +34,8 @@ public class UserService {
         try {
             if (authHeader == null) {
                 LOG.warn("No authentication header available");
-                return Collections.emptyList();
+                throw new AuthenticationException("Authentication required");
             }
-
             return this.userClient.getAllUsers(authHeader);
         } catch (final ProcessingException e) {
             LOG.error("Connection error while fetching users", e);

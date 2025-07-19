@@ -30,12 +30,11 @@ public class UserRankService {
 
     public List<UserRankDto> getAllRanks(final String authHeader) throws AuthenticationException, ServiceException {
         LOG.debug("Fetching all ranks");
+        if (authHeader == null) {
+            LOG.warn("No authentication header available");
+            throw new AuthenticationException("Authentication required");
+        }
         try {
-            if (authHeader == null) {
-                LOG.warn("No authentication header available");
-                throw new AuthenticationException("Authentication required");
-            }
-
             return this.userRankClient.getAllRanks(authHeader);
         } catch (final ProcessingException e) {
             LOG.error("Connection error while fetching ranks", e);

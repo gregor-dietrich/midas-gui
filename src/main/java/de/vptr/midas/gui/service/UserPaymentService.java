@@ -34,12 +34,11 @@ public class UserPaymentService {
     public List<UserPaymentDto> getAllPayments(final String authHeader)
             throws ServiceException, AuthenticationException {
         LOG.debug("Fetching all payments with provided auth header");
+        if (authHeader == null) {
+            LOG.warn("No authentication header provided");
+            throw new AuthenticationException("Authentication required");
+        }
         try {
-            if (authHeader == null) {
-                LOG.warn("No authentication header provided");
-                return Collections.emptyList();
-            }
-
             return this.paymentClient.getAllPayments(authHeader);
         } catch (final ProcessingException e) {
             LOG.error("Connection error while fetching payments", e);
@@ -47,6 +46,7 @@ public class UserPaymentService {
         } catch (final WebApplicationException e) {
             LOG.error("HTTP error while fetching payments: {}", e.getResponse().getStatus());
             if (e.getResponse().getStatus() == 401) {
+                this.authService.logout();
                 throw new AuthenticationException("Session expired");
             }
             throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);

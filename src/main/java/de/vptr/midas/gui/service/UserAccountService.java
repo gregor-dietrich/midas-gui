@@ -34,12 +34,11 @@ public class UserAccountService {
     public List<UserAccountDto> getAllAccounts(final String authHeader)
             throws ServiceException, AuthenticationException {
         LOG.debug("Fetching all user accounts with provided auth header");
+        if (authHeader == null) {
+            LOG.warn("No authentication header provided");
+            throw new AuthenticationException("Authentication required");
+        }
         try {
-            if (authHeader == null) {
-                LOG.warn("No authentication header provided");
-                return Collections.emptyList();
-            }
-
             return this.accountClient.getAllAccounts(authHeader);
         } catch (final ProcessingException e) {
             LOG.error("Connection error while fetching accounts", e);
@@ -47,6 +46,7 @@ public class UserAccountService {
         } catch (final WebApplicationException e) {
             LOG.error("HTTP error while fetching accounts: {}", e.getResponse().getStatus());
             if (e.getResponse().getStatus() == 401) {
+                this.authService.logout();
                 throw new AuthenticationException("Session expired");
             }
             throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);
