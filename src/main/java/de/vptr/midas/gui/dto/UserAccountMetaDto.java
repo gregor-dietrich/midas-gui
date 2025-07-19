@@ -17,7 +17,7 @@ public class UserAccountMetaDto {
     public UserAccountDto account;
 
     @JsonProperty("timestamp")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime timestamp;
 
     public UserAccountMetaDto() {

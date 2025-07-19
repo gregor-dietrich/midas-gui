@@ -29,19 +29,21 @@ public class PostDto {
     public Boolean commentable;
 
     @JsonProperty("created")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime created;
 
     @JsonProperty("lastEdit")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime lastEdit;
 
     public PostDto() {
         // Default constructor for Jackson
     }
 
-    public PostDto(final Long id, final String title, final String content, final UserDto user, final PostCategoryDto category,
-            final Boolean published, final Boolean commentable, final LocalDateTime created, final LocalDateTime lastEdit) {
+    public PostDto(final Long id, final String title, final String content, final UserDto user,
+            final PostCategoryDto category,
+            final Boolean published, final Boolean commentable, final LocalDateTime created,
+            final LocalDateTime lastEdit) {
         this.id = id;
         this.title = title;
         this.content = content;

@@ -20,14 +20,15 @@ public class PostCommentDto {
     public UserDto user;
 
     @JsonProperty("created")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime created;
 
     public PostCommentDto() {
         // Default constructor for Jackson
     }
 
-    public PostCommentDto(final Long id, final String content, final PostDto post, final UserDto user, final LocalDateTime created) {
+    public PostCommentDto(final Long id, final String content, final PostDto post, final UserDto user,
+            final LocalDateTime created) {
         this.id = id;
         this.content = content;
         this.post = post;

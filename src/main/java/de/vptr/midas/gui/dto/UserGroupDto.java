@@ -21,7 +21,7 @@ public class UserGroupDto {
     public List<UserDto> users;
 
     @JsonProperty("created")
-    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss[.SSSSSSSSS]")
     public LocalDateTime created;
 
     public UserGroupDto() {
