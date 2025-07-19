@@ -12,6 +12,7 @@ import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -27,27 +28,29 @@ public class PostCommentService {
     @Inject
     AuthService authService;
 
-    public List<PostCommentDto> getAllComments() throws AuthenticationException, ServiceException {
-        LOG.info("Getting all comments");
-
-        if (!this.authService.isAuthenticated()) {
-            throw new AuthenticationException("User is not authenticated");
-        }
-
+    public List<PostCommentDto> getAllComments(final String authHeader)
+            throws AuthenticationException, ServiceException {
+        LOG.debug("Fetching all comments");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
-            final var response = this.commentClient.getAllComments(authHeader);
-            LOG.info("Successfully retrieved {} comments", response.size());
-            return response;
-        } catch (final WebApplicationException e) {
-            LOG.error("Error getting comments: {}", e.getMessage(), e);
-            if (e.getResponse().getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                throw new AuthenticationException("Session expired", e);
+            if (authHeader == null) {
+                LOG.warn("No authentication header available");
+                throw new AuthenticationException("Authentication required");
             }
-            throw new ServiceException("Failed to get comments: " + e.getMessage(), e);
+
+            return this.commentClient.getAllComments(authHeader);
+        } catch (final ProcessingException e) {
+            LOG.error("Connection error while fetching comments", e);
+            throw new ServiceException("Backend connection failed", e);
+        } catch (final WebApplicationException e) {
+            LOG.error("HTTP error while fetching comments: {}", e.getResponse().getStatus());
+            if (e.getResponse().getStatus() == 401) {
+                this.authService.logout();
+                throw new AuthenticationException("Session expired");
+            }
+            throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);
         } catch (final Exception e) {
-            LOG.error("Unexpected error getting comments", e);
-            throw new ServiceException("Unexpected error occurred", e);
+            LOG.error("Unexpected error while fetching comments", e);
+            throw new ServiceException("Unexpected error", e);
         }
     }
 

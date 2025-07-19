@@ -30,13 +30,12 @@ public class PostService {
     @Inject
     AuthService authService;
 
-    public List<PostDto> getAllPosts() {
+    public List<PostDto> getAllPosts(final String authHeader) {
         LOG.debug("Fetching all posts");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
             if (authHeader == null) {
                 LOG.warn("No authentication header available");
-                return Collections.emptyList();
+                throw new AuthenticationException("Authentication required");
             }
 
             return this.postClient.getAllPosts(authHeader);

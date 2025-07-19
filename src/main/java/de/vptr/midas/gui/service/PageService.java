@@ -12,6 +12,7 @@ import de.vptr.midas.gui.exception.AuthenticationException;
 import de.vptr.midas.gui.exception.ServiceException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.ws.rs.ProcessingException;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 
@@ -27,27 +28,28 @@ public class PageService {
     @Inject
     AuthService authService;
 
-    public List<PageDto> getAllPages() throws AuthenticationException, ServiceException {
-        LOG.info("Getting all pages");
-
-        if (!this.authService.isAuthenticated()) {
-            throw new AuthenticationException("User is not authenticated");
-        }
-
+    public List<PageDto> getAllPages(final String authHeader) throws AuthenticationException, ServiceException {
+        LOG.debug("Fetching all pages");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
-            final var response = this.pageClient.getAllPages(authHeader);
-            LOG.info("Successfully retrieved {} pages", response.size());
-            return response;
-        } catch (final WebApplicationException e) {
-            LOG.error("Error getting pages: {}", e.getMessage(), e);
-            if (e.getResponse().getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()) {
-                throw new AuthenticationException("Session expired", e);
+            if (authHeader == null) {
+                LOG.warn("No authentication header available");
+                throw new AuthenticationException("Authentication required");
             }
-            throw new ServiceException("Failed to get pages: " + e.getMessage(), e);
+
+            return this.pageClient.getAllPages(authHeader);
+        } catch (final ProcessingException e) {
+            LOG.error("Connection error while fetching pages", e);
+            throw new ServiceException("Backend connection failed", e);
+        } catch (final WebApplicationException e) {
+            LOG.error("HTTP error while fetching pages: {}", e.getResponse().getStatus());
+            if (e.getResponse().getStatus() == 401) {
+                this.authService.logout();
+                throw new AuthenticationException("Session expired");
+            }
+            throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);
         } catch (final Exception e) {
-            LOG.error("Unexpected error getting pages", e);
-            throw new ServiceException("Unexpected error occurred", e);
+            LOG.error("Unexpected error while fetching pages", e);
+            throw new ServiceException("Unexpected error", e);
         }
     }
 

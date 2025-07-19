@@ -77,10 +77,22 @@ public class PostCommentView extends VerticalLayout implements BeforeEnterObserv
     private void loadCommentsAsync() {
         LOG.info("Starting async comment loading");
 
+        // Capture the auth header in the UI thread where VaadinSession is available
+        final String authHeader;
+        try {
+            authHeader = this.authService.getBasicAuthHeader();
+        } catch (final Exception e) {
+            LOG.error("Failed to get auth header", e);
+            this.getUI().ifPresent(ui -> ui.access(() -> {
+                NotificationUtil.showError("Authentication failed");
+            }));
+            return;
+        }
+
         CompletableFuture.supplyAsync(() -> {
             LOG.info("Making REST call to load comments");
             try {
-                return this.commentService.getAllComments();
+                return this.commentService.getAllComments(authHeader);
             } catch (final AuthenticationException e) {
                 LOG.error("Authentication failed while loading comments", e);
                 throw e;

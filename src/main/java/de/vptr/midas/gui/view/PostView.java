@@ -78,10 +78,22 @@ public class PostView extends VerticalLayout implements BeforeEnterObserver {
     private void loadPostsAsync() {
         LOG.info("Starting async post loading");
 
+        // Capture the auth header in the UI thread where VaadinSession is available
+        final String authHeader;
+        try {
+            authHeader = this.authService.getBasicAuthHeader();
+        } catch (final Exception e) {
+            LOG.error("Failed to get auth header", e);
+            this.getUI().ifPresent(ui -> ui.access(() -> {
+                NotificationUtil.showError("Authentication failed");
+            }));
+            return;
+        }
+
         CompletableFuture.supplyAsync(() -> {
             LOG.info("Making REST call to load posts");
             try {
-                return this.postService.getAllPosts();
+                return this.postService.getAllPosts(authHeader);
             } catch (final AuthenticationException e) {
                 LOG.error("Authentication failed while loading posts", e);
                 throw e;

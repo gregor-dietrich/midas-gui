@@ -76,10 +76,22 @@ public class UserRankView extends VerticalLayout implements BeforeEnterObserver 
     private void loadRanksAsync() {
         LOG.info("Starting async rank loading");
 
+        // Capture the auth header in the UI thread where VaadinSession is available
+        final String authHeader;
+        try {
+            authHeader = this.authService.getBasicAuthHeader();
+        } catch (final Exception e) {
+            LOG.error("Failed to get auth header", e);
+            this.getUI().ifPresent(ui -> ui.access(() -> {
+                NotificationUtil.showError("Authentication failed");
+            }));
+            return;
+        }
+
         CompletableFuture.supplyAsync(() -> {
             LOG.info("Making REST call to load ranks");
             try {
-                return this.rankService.getAllRanks();
+                return this.rankService.getAllRanks(authHeader);
             } catch (final AuthenticationException e) {
                 LOG.error("Authentication failed while loading ranks", e);
                 throw e;

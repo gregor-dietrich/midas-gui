@@ -75,10 +75,22 @@ public class UserGroupView extends VerticalLayout implements BeforeEnterObserver
     private void loadGroupsAsync() {
         LOG.info("Starting async group loading");
 
+        // Capture the auth header in the UI thread where VaadinSession is available
+        final String authHeader;
+        try {
+            authHeader = this.authService.getBasicAuthHeader();
+        } catch (final Exception e) {
+            LOG.error("Failed to get auth header", e);
+            this.getUI().ifPresent(ui -> ui.access(() -> {
+                NotificationUtil.showError("Authentication failed");
+            }));
+            return;
+        }
+
         CompletableFuture.supplyAsync(() -> {
             LOG.info("Making REST call to load groups");
             try {
-                return this.groupService.getAllGroups();
+                return this.groupService.getAllGroups(authHeader);
             } catch (final AuthenticationException e) {
                 LOG.error("Authentication failed while loading groups", e);
                 throw e;

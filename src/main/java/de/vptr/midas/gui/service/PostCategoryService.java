@@ -30,10 +30,9 @@ public class PostCategoryService {
     @Inject
     AuthService authService;
 
-    public List<PostCategoryDto> getAllCategories() {
+    public List<PostCategoryDto> getAllCategories(final String authHeader) {
         LOG.debug("Fetching all categories");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
             if (authHeader == null) {
                 LOG.warn("No authentication header available");
                 return Collections.emptyList();

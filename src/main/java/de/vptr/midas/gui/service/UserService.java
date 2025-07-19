@@ -30,10 +30,9 @@ public class UserService {
     @Inject
     AuthService authService;
 
-    public List<UserDto> getAllUsers() {
+    public List<UserDto> getAllUsers(final String authHeader) {
         LOG.debug("Fetching all users");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
             if (authHeader == null) {
                 LOG.warn("No authentication header available");
                 return Collections.emptyList();

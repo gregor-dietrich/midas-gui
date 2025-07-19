@@ -31,28 +31,27 @@ public class UserGroupService {
     @Inject
     AuthService authService;
 
-    public List<UserGroupDto> getAllGroups() {
-        LOG.debug("Fetching all user groups");
+    public List<UserGroupDto> getAllGroups(final String authHeader) {
+        LOG.debug("Fetching all groups");
         try {
-            final var authHeader = this.authService.getBasicAuthHeader();
             if (authHeader == null) {
                 LOG.warn("No authentication header available");
-                return Collections.emptyList();
+                throw new AuthenticationException("Authentication required");
             }
 
             return this.groupClient.getAllGroups(authHeader);
         } catch (final ProcessingException e) {
-            LOG.error("Connection error while fetching user groups", e);
+            LOG.error("Connection error while fetching groups", e);
             throw new ServiceException("Backend connection failed", e);
         } catch (final WebApplicationException e) {
-            LOG.error("HTTP error while fetching user groups: {}", e.getResponse().getStatus());
+            LOG.error("HTTP error while fetching groups: {}", e.getResponse().getStatus());
             if (e.getResponse().getStatus() == 401) {
                 this.authService.logout();
                 throw new AuthenticationException("Session expired");
             }
             throw new ServiceException("Backend error: " + e.getResponse().getStatus(), e);
         } catch (final Exception e) {
-            LOG.error("Unexpected error while fetching user groups", e);
+            LOG.error("Unexpected error while fetching groups", e);
             throw new ServiceException("Unexpected error", e);
         }
     }
